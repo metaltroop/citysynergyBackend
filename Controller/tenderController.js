@@ -3,6 +3,8 @@ const { spawn } = require("child_process");
 const { Tender } = require("../Models/Tender");
 
 const { sequelize } = require('../Config/database');
+const { PythonShell } = require("python-shell");
+
 
 
 const getbyfilterandsearch = async (req, res) => {
@@ -572,33 +574,19 @@ const getTenderByPincode = async (req, res) => {
 
 const checkClashes = (req, res) => {
   const { pincode } = req.body;
+  if (!pincode) return res.status(400).json({ error: "Pincode is required" });
 
-  if (!pincode) {
-    return res.status(400).json({ error: "Pincode is required" });
-  }
+  let options = { args: [pincode] };
 
-  const process = spawn("python", ["./ML/model.py", pincode]);
-
-  let output = "";
-  process.stdout.on("data", (data) => {
-    output += data.toString();
-  });
-
-  process.stderr.on("data", (data) => {
-    console.error("Error from Python script:", data.toString());
-  });
-
-  process.on("close", (code) => {
-    if (code !== 0) {
-      console.error(`Python script exited with code ${code}`);
+  PythonShell.run("ML/model.py", options, function (err, results) {
+    if (err) {
+      console.error("Error in Python execution:", err);
       return res.status(500).json({ error: "Error in Python script execution" });
     }
-
     try {
-      const result = JSON.parse(output.trim());
+      const result = JSON.parse(results[0]);
       res.json(result);
-    } catch (error) {
-      console.error("Error parsing JSON:", error.message);
+    } catch (parseError) {
       res.status(500).json({ error: "Invalid JSON output from Python script" });
     }
   });
