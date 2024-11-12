@@ -1,6 +1,6 @@
 // backend/routes/authRoutes.js
 const express = require('express');
-const { register, login, forgotPassword } = require('../controller/authController');
+const { register, login, forgotPassword } = require('../Controller/authController');
 const router = express.Router();
 
 router.post('/register', register);
