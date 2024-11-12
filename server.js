@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const { sequelize, connectDB } = require('./Config/database');
 const authRoutes = require('./Routes/authRoutes');
+const tenderRoutes = require('./Routes/tenderRoutes')
 const cors = require('cors'); 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -22,6 +23,7 @@ sequelize.sync({ alter: true }).then(() => {
 });
 
 app.use('/auth', authRoutes);
+app.use('/tender', tenderRoutes);
 
 // Routes
 app.get('/', (req, res) => {
