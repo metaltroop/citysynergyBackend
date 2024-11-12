@@ -1,10 +1,8 @@
 // tenderController.js
-const { spawn } = require("child_process");
 const { Tender } = require("../Models/Tender");
 
 const { sequelize } = require('../Config/database');
-const { PythonShell } = require("python-shell");
-
+const axios = require('axios');
 
 
 const getbyfilterandsearch = async (req, res) => {
