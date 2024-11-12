@@ -8,7 +8,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 //below code is for cors localhost:4000
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({ origin: "https://citycynergyfrontendrepo.vercel.app", credentials: true }));
 
 app.use(express.json());
 // Test the database connection and sync models
