@@ -572,24 +572,19 @@ const getTenderByPincode = async (req, res) => {
 };
 
 
-const checkClashes = (req, res) => {
+const checkClashes = async (req, res) => {
   const { pincode } = req.body;
-  if (!pincode) return res.status(400).json({ error: "Pincode is required" });
+  if (!pincode) {
+    return res.status(400).json({ error: "Pincode is required" });
+  }
 
-  let options = { args: [pincode] };
-
-  PythonShell.run("ML/model.py", options, function (err, results) {
-    if (err) {
-      console.error("Error in Python execution:", err);
-      return res.status(500).json({ error: "Error in Python script execution" });
-    }
-    try {
-      const result = JSON.parse(results[0]);
-      res.json(result);
-    } catch (parseError) {
-      res.status(500).json({ error: "Invalid JSON output from Python script" });
-    }
-  });
+  try {
+    const response = await axios.post('https://citysynergybackendpython.onrender.com/check_clashes', { pincode });
+    res.json(response.data);
+  } catch (error) {
+    console.error("Error calling FastAPI service:", error.message);
+    res.status(500).json({ error: "Error in calling Python API" });
+  }
 };
 
 const addTender = async (req, res) => {
