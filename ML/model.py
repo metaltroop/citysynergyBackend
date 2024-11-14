@@ -1,15 +1,21 @@
-#ML/model.py
+# main.py
 
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 import mysql.connector
-import json
-import sys
-from datetime import datetime, date
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
+from datetime import datetime, date
+from typing import List, Dict, Union
 
 load_dotenv()
 
-def fetch_data_from_db(pincode):
+app = FastAPI()
+
+class PincodeRequest(BaseModel):
+    pincode: str
+
+def fetch_data_from_db(pincode: str) -> List[Dict[str, Union[str, int]]]:
     try:
         connection = mysql.connector.connect(
             host=os.getenv('DB_HOST'),
@@ -17,7 +23,7 @@ def fetch_data_from_db(pincode):
             password=os.getenv('DB_PASS'),
             database=os.getenv('DB_NAME'),
             ssl_ca='./DigiCertGlobalRootCA.crt.pem',
-            ssl_disabled=False  # Ensure SSL is not disabled
+            ssl_disabled=False
         )
         cursor = connection.cursor(dictionary=True)
         query = """
@@ -29,29 +35,21 @@ def fetch_data_from_db(pincode):
         result = cursor.fetchall()
         return result
     except mysql.connector.Error as err:
-        # Output error as JSON
-        print(json.dumps({'error': f'Database error: {err}'}))
-        sys.exit(1)
+        raise HTTPException(status_code=500, detail=f"Database error: {err}")
     finally:
         if 'connection' in locals() and connection.is_connected():
             cursor.close()
             connection.close()
 
-def main():
-    if len(sys.argv) < 2:
-        print(json.dumps({'error': 'Pincode argument is missing'}))
-        sys.exit(1)
+@app.post("/check_clashes")
+async def check_clashes(request: PincodeRequest):
+    data = fetch_data_from_db(request.pincode)
 
-    pincode = sys.argv[1]
-    data = fetch_data_from_db(pincode)
-
+    # Convert date fields to ISO format
     for row in data:
         if isinstance(row['Sanction_Date'], (datetime, date)):
             row['Sanction_Date'] = row['Sanction_Date'].isoformat()
         if isinstance(row['Completion_Date'], (datetime, date)):
             row['Completion_Date'] = row['Completion_Date'].isoformat()
 
-    print(json.dumps({'clashes': data}, indent=4))
-
-if __name__ == '__main__':
-    main()
+    return {"clashes": data}
