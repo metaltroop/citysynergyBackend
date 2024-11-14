@@ -8,8 +8,7 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3000;
 
-//below code is for cors localhost:4000
-app.use(cors({ origin: "https://citysynergy.metaltroop.fun", credentials: true }));
+app.use(cors({ origin: "*" }));
 
 app.use(express.json());
 // Test the database connection and sync models
