@@ -39,7 +39,7 @@ app.get('/ping', (req, res) => {
 });
 // Periodic PING functionality
 const pingFastAPI = async () => {
-    const url = 'https://citysynergybackend.onrender.com/ping';
+    const url = 'https://citysynergybackendpython.onrender.com/ping';
     try {
         const response = await axios.get(url);
         console.log(`[PING] FastAPI responded: ${response.data.message || 'Success'}`);
