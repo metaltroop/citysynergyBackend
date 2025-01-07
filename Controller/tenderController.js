@@ -1,5 +1,6 @@
 // tenderController.js
 const { Tender } = require("../Models/Tendernew");
+const { Op } = require('sequelize');
 
 const { sequelize } = require('../Config/database');
 const axios = require('axios');
@@ -15,24 +16,31 @@ const getbyfilterandsearch = async (req, res) => {
   }
 
   try {
-    // Build the where clause
-    const whereClause = {
-      [search_by]: {
-        [sequelize.Op.like]: `%${search_term}%`
-      }
+    // Create where clause using Op.like
+    const whereClause = {};
+    whereClause[search_by] = {
+      [Op.like]: `%${search_term}%`
     };
 
-    // Build attributes array for selecting columns
-    const attributes = filter_columns ? 
-      (Array.isArray(filter_columns) ? filter_columns : filter_columns.split(',')) : 
-      undefined;
-
-    const results = await Tender.findAll({
-      attributes,
+    const queryOptions = {
       where: whereClause
-    });
+    };
+
+    // Add attributes if filter_columns is provided
+    if (filter_columns) {
+      queryOptions.attributes = Array.isArray(filter_columns) 
+        ? filter_columns 
+        : filter_columns.split(',').map(col => col.trim());
+    }
+
+    const results = await Tender.findAll(queryOptions);
+    
+    if (results.length === 0) {
+      return res.json({ message: "No results found", data: [] });
+    }
 
     res.json(results);
+
   } catch (err) {
     console.error("Error executing query:", err);
     res.status(500).json({ 
@@ -41,7 +49,6 @@ const getbyfilterandsearch = async (req, res) => {
     });
   }
 };
-
 // Get all tenders
 const getalltenders = async (req, res) => {
   try {
