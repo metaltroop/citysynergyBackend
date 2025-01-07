@@ -1,5 +1,5 @@
 // tenderController.js
-const { Tender } = require("../Models/Tender");
+const { Tender } = require("../Models/Tendernew");
 
 const { sequelize } = require('../Config/database');
 const axios = require('axios');
@@ -105,6 +105,54 @@ const checkClashes = async (req, res) => {
   }
 };
 
+const getAreas = async (req, res) => {
+  const { pincode, query } = req.query;
+
+  if (!pincode) {
+    return res.status(400).json({ error: "Pincode is required" });
+  }
+
+  try {
+    const areas = await Tender.findAll({
+      attributes: ["area"],
+      where: {
+        pincode,
+        area: { [Op.like]: `%${query || ""}%` },
+      },
+      group: ["area"],
+    });
+
+    res.json(areas.map((area) => ({ name: area.area })));
+  } catch (error) {
+    console.error("Error fetching areas:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getLocalAreas = async (req, res) => {
+  const { pincode, area, query } = req.query;
+
+  if (!pincode || !area) {
+    return res.status(400).json({ error: "Pincode and Area are required" });
+  }
+
+  try {
+    const localAreas = await Tender.findAll({
+      attributes: ["localArea"],
+      where: {
+        pincode,
+        area,
+        localArea: { [Op.like]: `%${query || ""}%` },
+      },
+      group: ["localArea"],
+    });
+
+    res.json(localAreas.map((localArea) => ({ name: localArea.localArea })));
+  } catch (error) {
+    console.error("Error fetching local areas:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 
 
@@ -113,7 +161,9 @@ module.exports = {
   checkClashes,
   getbyfilterandsearch,
   getalltenders,
-  gettenderbyID
+  gettenderbyID,
+  getAreas,
+  getLocalAreas
   
  
 };

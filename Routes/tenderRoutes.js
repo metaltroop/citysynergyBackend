@@ -9,6 +9,8 @@ router.get('/tenders', tenderController.getalltenders);
 
 router.post('/tenders/filter', tenderController.getbyfilterandsearch);
 router.post('/tenders/:id', tenderController.gettenderbyID);
+router.get("/areas", tenderController.getAreas);
+router.get("/local-areas", tenderController.getLocalAreas);
 
 
 

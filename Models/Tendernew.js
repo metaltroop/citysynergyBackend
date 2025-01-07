@@ -1,17 +1,14 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../Config/database');
 
-const tenders = sequelize.define('tenders', {
+const tendernew = sequelize.define('tenders', {
     Tender_ID: {
         type: DataTypes.STRING,
         unique: "Tender_ID",
         allowNull: false,
         primaryKey:true,
     },
-    Tender_By_Location: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
+    
     Tender_By_Department: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -64,6 +61,22 @@ const tenders = sequelize.define('tenders', {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    local_area_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    area_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    city: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    state: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
     pincode: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -73,4 +86,4 @@ const tenders = sequelize.define('tenders', {
 });
 
 
-module.exports = tenders
+module.exports = tendernew
