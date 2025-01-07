@@ -23,7 +23,7 @@ const getbyfilterandsearch = async (req, res) => {
 
   const query = `
     SELECT ${columnsToSelect}
-    FROM tenders
+    FROM tendernew
     WHERE \`${search_by}\` LIKE :searchTerm
   `;
 
@@ -44,7 +44,7 @@ const getbyfilterandsearch = async (req, res) => {
 // Get all tenders
 const getalltenders = async (req, res) => {
   try {
-    const results = await sequelize.query("SELECT * FROM tenders", {
+    const results = await sequelize.query("SELECT * FROM tendernew", {
       type: sequelize.QueryTypes.SELECT,
     });
     res.json(results);
@@ -66,7 +66,7 @@ const gettenderbyID = async (req, res) => {
 
   try {
     // Ensure the query uses the correct replacement for ':id'
-    const query = "SELECT * FROM tenders WHERE Tender_ID = :id";
+    const query = "SELECT * FROM tendernew WHERE Tender_ID = :id";
     const results = await sequelize.query(query, {
       type: sequelize.QueryTypes.SELECT,
       replacements: { id }, // Ensure 'id' is passed correctly for replacement
