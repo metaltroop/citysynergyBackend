@@ -8,36 +8,44 @@ const axios = require('axios');
 const getbyfilterandsearch = async (req, res) => {
   const { search_by, search_term, filter_columns } = req.body;
 
-  if (!search_by || !search_term || !filter_columns) {
-    return res
-      .status(400)
-      .json({ error: "Missing required fields in request body." });
+  // Input validation
+  if (!search_by || !search_term) {
+    return res.status(400).json({ 
+      error: "search_by and search_term are required fields" 
+    });
   }
 
-  const filterColumnsArray = Array.isArray(filter_columns)
-    ? filter_columns
-    : filter_columns.split(",");
-  const columnsToSelect = filterColumnsArray
-    .map((col) => `\`${col}\``)
-    .join(",");
-
-  const query = `
-    SELECT ${columnsToSelect}
-    FROM tendernew
-    WHERE \`${search_by}\` LIKE :searchTerm
-  `;
-
   try {
+    // If no filter_columns provided, select all columns
+    let columnsToSelect = '*';
+    
+    if (filter_columns) {
+      const filterColumnsArray = Array.isArray(filter_columns) 
+        ? filter_columns 
+        : filter_columns.split(",");
+      columnsToSelect = filterColumnsArray
+        .map((col) => `\`${col.trim()}\``)
+        .join(",");
+    }
+
+    const query = `
+      SELECT ${columnsToSelect}
+      FROM tendernew
+      WHERE \`${search_by}\` LIKE :searchTerm
+    `;
+
     const results = await sequelize.query(query, {
       type: sequelize.QueryTypes.SELECT,
       replacements: { searchTerm: `%${search_term}%` },
     });
+
     res.json(results);
   } catch (err) {
     console.error("Error executing query:", err);
-    res
-      .status(500)
-      .json({ error: "An error occurred while querying the database." });
+    res.status(500).json({ 
+      error: "An error occurred while querying the database.",
+      details: err.message 
+    });
   }
 };
 
