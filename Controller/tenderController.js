@@ -16,25 +16,26 @@ const getbyfilterandsearch = async (req, res) => {
   }
 
   try {
-    // Create where clause using Op.like
-    const whereClause = {};
-    whereClause[search_by] = {
-      [Op.like]: `%${search_term}%`
-    };
-
-    const queryOptions = {
-      where: whereClause
-    };
-
-    // Add attributes if filter_columns is provided
+    let columnsToSelect = '*';
     if (filter_columns) {
-      queryOptions.attributes = Array.isArray(filter_columns) 
-        ? filter_columns 
-        : filter_columns.split(',').map(col => col.trim());
+      columnsToSelect = Array.isArray(filter_columns) 
+        ? filter_columns.join(',') 
+        : filter_columns;
     }
 
-    const results = await Tender.findAll(queryOptions);
-    
+    const query = `
+      SELECT ${columnsToSelect} 
+      FROM tendernew 
+      WHERE ${search_by} LIKE :searchTerm
+    `;
+
+    const results = await sequelize.query(query, {
+      type: sequelize.QueryTypes.SELECT,
+      replacements: { 
+        searchTerm: `%${search_term}%`
+      }
+    });
+
     if (results.length === 0) {
       return res.json({ message: "No results found", data: [] });
     }
