@@ -35,18 +35,19 @@ app.get('/', (req, res) => {
 });
 
 app.get('/ping', (req, res) => {
-    res.send('ping pong');
+    res.json({ status: "success", message: "PING received from Node.js server" });
 });
-// Periodic PING functionality
+
 const pingFastAPI = async () => {
     const url = 'https://citysynergybackendpython.onrender.com/ping';
     try {
-        const response = await axios.get(url);
+        const response = await axios.post(url, { message: "PING from Node.js" });
         console.log(`[PING] FastAPI responded: ${response.data.message || 'Success'}`);
     } catch (error) {
         console.error(`[PING] Error pinging FastAPI: ${error.message}`);
     }
 };
+
 
 // Schedule periodic PING every 10 minutes (600,000 ms)
 setInterval(pingFastAPI, 600000);
